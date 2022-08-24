@@ -4,7 +4,6 @@ import process from 'node:process'
 import FastGlob from 'fast-glob'
 import lodash from 'lodash'
 import Handlebars from 'handlebars'
-import HandlebarsWax from './wax.js'
 import chalk from 'chalk'
 import { fileURLToPath } from 'url'
 
@@ -19,10 +18,8 @@ const defaultOptions = {
         json: /.(json.hbs.html)$/
     },
     compileOptions: {},
-    runtimeOptions
+    runtimeOptions: {}
 }
-
-const Wax = HandlebarsWax(Handlebars)
 
 function processData(paths, data = {}) {
     let context = {}
@@ -55,18 +52,23 @@ const renderTemplate = async(filename, content, options) => {
         lodash.merge(context, JSON.parse(fs.readFileSync(filename + '.json').toString()))
     }
 
-    if (options.partials) {
-        Wax.partials(options.partials)
-    } else {
-        Wax.partials(options.root)
+    if (!options.partials) {
+        options.partials = `${options.root}/**/*.hbs`
     }
 
+    FastGlob.sync(options.partials).map(entry => resolve(process.cwd(), entry)).forEach((path) => {
+        const partialName = relative(options.root, path)
+        Handlebars.registerPartial(partialName, fs.readFileSync(path).toString())
+    })
+
     if (options.helpers) {
-        Wax.helpers(options.helpers)
+        Object.keys(options.helpers).forEach((helper) => {
+            Handlebars.registerHelper(helper, options.helpers[helper])
+        })
     }
 
     try {
-        const template = Wax.compile(content, options.compileOptions)
+        const template = Handlebars.compile(content, options.compileOptions)
 
         output.content = template(context, options.runtimeOptions)
     } catch(error) {
