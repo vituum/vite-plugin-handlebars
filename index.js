@@ -11,7 +11,10 @@ const { name } = JSON.parse(fs.readFileSync(resolve(dirname((fileURLToPath(impor
 const defaultOptions = {
     helpers: {},
     globals: {},
-    partials: null,
+    partials: {
+        directory: null,
+        extname: false
+    },
     data: '',
     filetypes: {
         html: /.(json.html|hbs.json.html|hbs.html)$/,
@@ -52,13 +55,13 @@ const renderTemplate = async(filename, content, options) => {
         lodash.merge(context, JSON.parse(fs.readFileSync(filename + '.json').toString()))
     }
 
-    if (!options.partials) {
-        options.partials = `${options.root}/**/*.hbs`
-    }
+    const partialGlob = !options.partials.directory ? `${options.root}/**/*.hbs` : `${resolve(process.cwd(), options.partials.directory)}/**/*.hbs`
 
-    FastGlob.sync(options.partials).map(entry => resolve(process.cwd(), entry)).forEach((path) => {
-        const partialName = relative(options.root, path)
-        Handlebars.registerPartial(partialName, fs.readFileSync(path).toString())
+    FastGlob.sync(partialGlob).map(entry => resolve(process.cwd(), entry)).forEach((path) => {
+        const partialDir = options.partials.directory ? relative(process.cwd(), options.partials.directory) : options.root
+        const partialName = relative(partialDir, path)
+
+        Handlebars.registerPartial(options.partials.extname ? partialName : partialName.replace('.hbs',''), fs.readFileSync(path).toString())
     })
 
     if (options.helpers) {
