@@ -13,7 +13,7 @@ const defaultOptions = {
     globals: {},
     partials: {
         directory: null,
-        extname: false
+        extname: true
     },
     data: '',
     filetypes: {

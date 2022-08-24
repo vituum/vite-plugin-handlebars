@@ -7,10 +7,11 @@
 export default {
   plugins: [
     handlebars({
-      filters: {},
-      functions: {},
-      extensions: [],
-      namespaces: {}, 
+      helpers: {},
+      partials: {
+        directory: null,
+        extname: true
+      },
       data: '*.json',
       globals: {
           template: 'path/to/template.hbs'
@@ -18,7 +19,9 @@ export default {
       filetypes: {
           html: /.(json.html|hbs.json.html|hbs.html)$/,
           json: /.(json.hbs.html)$/
-      }
+      },
+      compileOptions: {},
+      runtimeOptions: {}
     })
   ]
 }
@@ -36,7 +39,7 @@ export default {
 or
 ```html
 <!-- index.hbs.html -->
-{{title}}
+{{> "path/to/template.hbs"}}
 ```
 or
 ```html
