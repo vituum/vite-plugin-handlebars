@@ -45,7 +45,7 @@ const renderTemplate = async(filename, content, options) => {
     ) {
         lodash.merge(context, JSON.parse(fs.readFileSync(filename).toString()))
 
-        content = `{{> (lookup layout 'template')}}`
+        content = `{{> (lookup @root 'template')}}`
 
         context.template = relative(process.cwd(), context.template)
     } else if (fs.existsSync(filename + '.json')) {
