@@ -9,6 +9,8 @@ import { fileURLToPath } from 'url'
 
 const { name } = JSON.parse(fs.readFileSync(resolve(dirname((fileURLToPath(import.meta.url))), 'package.json')).toString())
 const defaultOptions = {
+    reload: true,
+    root: null,
     helpers: {},
     globals: {},
     partials: {
@@ -20,8 +22,10 @@ const defaultOptions = {
         html: /.(json.html|hbs.json.html|hbs.html)$/,
         json: /.(json.hbs.html)$/
     },
-    compileOptions: {},
-    runtimeOptions: {}
+    handlebars: {
+        compileOptions: {},
+        runtimeOptions: {}
+    }
 }
 
 function processData(paths, data = {}) {
@@ -40,17 +44,21 @@ function processData(paths, data = {}) {
 
 const renderTemplate = async(filename, content, options) => {
     const output = {}
-    const context = processData(options.data, options.globals)
+    const context = options.data ? processData(options.data, options.globals) : options.globals
 
-    if (
-        filename.endsWith('.json.html') ||
-        filename.endsWith('.json')
-    ) {
+    const isJson = filename.endsWith('.json.html') || filename.endsWith('.json')
+    const isHtml = filename.endsWith('.html') && !filename.endsWith('.json.html')
+
+    if (isJson || isHtml) {
         lodash.merge(context, JSON.parse(fs.readFileSync(filename).toString()))
 
         content = `{{> (lookup @root 'template')}}`
 
-        context.template = relative(process.cwd(), context.template)
+        context.template = relative(process.cwd(), context.template).startsWith(relative(process.cwd(), options.root))
+            ? resolve(process.cwd(), context.template) : resolve(options.root, context.template)
+
+        context.template = relative(options.root, context.template)
+
     } else if (fs.existsSync(filename + '.json')) {
         lodash.merge(context, JSON.parse(fs.readFileSync(filename + '.json').toString()))
     }
@@ -71,9 +79,9 @@ const renderTemplate = async(filename, content, options) => {
     }
 
     try {
-        const template = Handlebars.compile(content, options.compileOptions)
+        const template = Handlebars.compile(content, options.handlebars.compileOptions)
 
-        output.content = template(context, options.runtimeOptions)
+        output.content = template(context, options.handlebars.runtimeOptions)
     } catch(error) {
         output.error = error
     }
@@ -87,7 +95,9 @@ const plugin = (options = {}) => {
     return {
         name,
         config: ({ root }) => {
-            options.root = root
+            if (!options.root) {
+                options.root = root
+            }
         },
         transformIndexHtml: {
             enforce: 'pre',
@@ -95,13 +105,17 @@ const plugin = (options = {}) => {
                 if (
                     !options.filetypes.html.test(path) &&
                     !options.filetypes.json.test(path) &&
-                    !content.startsWith('<script type="application/json"')
+                    !content.startsWith('<script type="application/json" data-format="hbs"')
                 ) {
                     return content
                 }
 
-                if (content.startsWith('<script type="application/json"') && !content.includes('data-format="hbs"')) {
-                    return content
+                if (content.startsWith('<script type="application/json" data-format="hbs"')) {
+                    const matches = content.matchAll(/<script\b[^>]*data-format="(?<format>[^>]+)"[^>]*>(?<data>[\s\S]+?)<\/script>/gmi)
+
+                    for (const match of matches) {
+                        content = JSON.parse(match.groups.data)
+                    }
                 }
 
                 const render = await renderTemplate(filename, content, options)
@@ -119,15 +133,16 @@ const plugin = (options = {}) => {
                             plugin: name
                         }
                     })
-
-                    return '<html style="background: #222"><head></head><body></body></html>'
                 }
 
                 return render.content
             }
         },
         handleHotUpdate({ file, server }) {
-            if (extname(file) === '.hbs' || extname(file) === '.html' || extname(file) === '.json') {
+            if (
+                typeof options.reload === 'function' && options.reload(file) ||
+                options.reload && (options.filetypes.html.test(file) || options.filetypes.json.test(file))
+            ) {
                 server.ws.send({ type: 'full-reload' })
             }
         }

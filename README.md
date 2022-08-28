@@ -4,9 +4,13 @@
 # ⚡️💡 ViteHandlebars
 
 ```js
+import handlebars from '@vituum/vite-plugin-handlebars'
+
 export default {
   plugins: [
     handlebars({
+      reload: true,
+      root: null,
       helpers: {},
       partials: {
         directory: null,
@@ -20,12 +24,18 @@ export default {
           html: /.(json.html|hbs.json.html|hbs.html)$/,
           json: /.(json.hbs.html)$/
       },
-      compileOptions: {},
-      runtimeOptions: {}
+      handlebars: {
+        compileOptions: {},
+        runtimeOptions: {}   
+      }
     })
   ]
 }
 ```
+
+Read the [docs](https://vituum.dev/config/integrations-options.html#vituum-handlebars) to learn more about the plugin options.
+
+## Basic usage
 
 ```html
 <!-- index.html -->
@@ -53,3 +63,4 @@ or
 ### Requirements
 
 - [Node.js LTS (16.x)](https://nodejs.org/en/download/)
+- [Vite](https://vitejs.dev/) or [Vituum](https://vituum.dev/)
