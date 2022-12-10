@@ -58,11 +58,9 @@ const renderTemplate = async(filename, content, options) => {
             console.error(chalk.red(name + ' template must be defined - ' + filename))
         }
 
-        context.template = relative(process.cwd(), context.template).startsWith(relative(process.cwd(), options.root))
-            ? resolve(process.cwd(), context.template) : resolve(options.root, context.template)
+        context.template = relative(process.cwd(), context.template).startsWith(relative(process.cwd(), options.root)) ? resolve(process.cwd(), context.template) : resolve(options.root, context.template)
 
         context.template = relative(options.root, context.template)
-
     } else if (fs.existsSync(filename + '.json')) {
         lodash.merge(context, JSON.parse(fs.readFileSync(filename + '.json').toString()))
     }
@@ -73,7 +71,7 @@ const renderTemplate = async(filename, content, options) => {
         const partialDir = options.partials.directory ? relative(process.cwd(), options.partials.directory) : options.root
         const partialName = relative(partialDir, path)
 
-        Handlebars.registerPartial(options.partials.extname ? partialName : partialName.replace('.hbs',''), fs.readFileSync(path).toString())
+        Handlebars.registerPartial(options.partials.extname ? partialName : partialName.replace('.hbs', ''), fs.readFileSync(path).toString())
     })
 
     if (options.helpers) {
@@ -86,7 +84,7 @@ const renderTemplate = async(filename, content, options) => {
         const template = Handlebars.compile(content, options.handlebars.compileOptions)
 
         output.content = template(context, options.handlebars.runtimeOptions)
-    } catch(error) {
+    } catch (error) {
         output.error = error
     }
 
@@ -133,13 +131,13 @@ const plugin = (options = {}) => {
                         return
                     }
 
-                    server.ws.send({
+                    setTimeout(() => server.ws.send({
                         type: 'error',
                         err: {
                             message: render.error.message,
                             plugin: name
                         }
-                    })
+                    }), 50)
                 }
 
                 return render.content
