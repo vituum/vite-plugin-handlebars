@@ -1,6 +1,6 @@
 {
   "name": "@vituum/vite-plugin-handlebars",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "type": "module",
   "main": "index.js",
   "scripts": {
@@ -22,8 +22,13 @@
     "vite": "^4.3.9"
   },
   "files": [
-    "index.js"
+    "index.js",
+    "types"
   ],
+  "exports": {
+    ".": "./index.js",
+    "./types": "./types/*"
+  },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
