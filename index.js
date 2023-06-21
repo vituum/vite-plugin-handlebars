@@ -6,6 +6,7 @@ import lodash from 'lodash'
 import Handlebars from 'handlebars'
 import { getPackageInfo, merge, pluginBundle, pluginError, pluginReload, processData } from 'vituum/utils/common.js'
 import { renameBuildEnd, renameBuildStart } from 'vituum/utils/build.js'
+import { minimatch } from 'minimatch'
 
 const { name } = getPackageInfo(import.meta.url)
 
@@ -20,13 +21,16 @@ const defaultOptions = {
         directory: null,
         extname: true
     },
-    globals: {},
+    globals: {
+        format: 'hbs'
+    },
     data: ['src/data/**/*.json'],
     formats: ['hbs', 'json.hbs', 'json'],
     handlebars: {
         compileOptions: {},
         runtimeOptions: {}
-    }
+    },
+    ignoredPaths: []
 }
 
 const renderTemplate = async ({ filename, server, root }, content, options) => {
@@ -135,7 +139,7 @@ const plugin = (options = {}) => {
         },
         transformIndexHtml: {
             order: 'pre',
-            async transform (content, { filename, server }) {
+            async transform (content, { path, filename, server }) {
                 if (
                     !options.formats.find(format => filename.replace('.html', '').endsWith(format)) ||
                     (filename.replace('.html', '').endsWith('.json') && !content.startsWith('{'))
@@ -147,6 +151,10 @@ const plugin = (options = {}) => {
                     (filename.replace('.html', '').endsWith('.json') && content.startsWith('{')) &&
                     (JSON.parse(content)?.format && !options.formats.includes(JSON.parse(content)?.format))
                 ) {
+                    return content
+                }
+
+                if (options.ignoredPaths.find(ignoredPath => minimatch(path.replace('.html', ''), ignoredPath) === true)) {
                     return content
                 }
 

@@ -47,4 +47,5 @@ export interface PluginUserConfig {
     data?: string | string[]
     formats?: string[]
     handlebars?: HandlebarsOptions
+    ignoredPaths?: string[]
 }
