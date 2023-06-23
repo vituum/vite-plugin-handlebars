@@ -7,53 +7,29 @@
 import handlebars from '@vituum/vite-plugin-handlebars'
 
 export default {
-  plugins: [
-    handlebars({
-      reload: true,
-      root: null,
-      helpers: {},
-      partials: {
-        directory: null,
-        extname: true
-      },
-      data: '*.json',
-      globals: {
-          template: 'path/to/template.hbs'
-      },
-      filetypes: {
-          html: /.(json.html|hbs.json.html|hbs.html)$/,
-          json: /.(json.hbs.html)$/
-      },
-      handlebars: {
-        compileOptions: {},
-        runtimeOptions: {}   
-      }
-    })
-  ]
+    plugins: [
+        handlebars()
+    ],
+    build: {
+        rollupOptions: {
+            input: ['index.hbs.html']
+        }
+    }
 }
 ```
 
-Read the [docs](https://vituum.dev/config/integrations-options.html#vituum-handlebars) to learn more about the plugin options.
+* Read the [docs](https://vituum.dev/plugins/handlebars.html) to learn more about the plugin options.
+* Use with [Vituum](https://vituum.dev) to get multi-page support.
 
 ## Basic usage
 
 ```html
-<!-- index.html -->
-<script type="application/json" data-format="hbs">
-  {
-    "template": "path/to/template.hbs",
-    "title": "Hello world"
-  }
-</script>
-```
-or
-```html
-<!-- index.hbs.html -->
+<!-- index.hbs -->
 {{> "path/to/template.hbs"}}
 ```
 or
 ```html
-<!-- index.json.html or index.hbs.json.html  -->
+<!-- index.json  -->
 {
   "template": "path/to/template.hbs",
   "title": "Hello world"
@@ -62,5 +38,5 @@ or
 
 ### Requirements
 
-- [Node.js LTS (16.x)](https://nodejs.org/en/download/)
-- [Vite](https://vitejs.dev/) or [Vituum](https://vituum.dev/)
+- [Node.js LTS (18.x)](https://nodejs.org/en/download/)
+- [Vite](https://vitejs.dev/)

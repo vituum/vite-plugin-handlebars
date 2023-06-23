@@ -1,6 +1,6 @@
 {
   "name": "@vituum/vite-plugin-handlebars",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-beta.1",
   "type": "module",
   "main": "index.js",
   "scripts": {
@@ -11,8 +11,7 @@
     "fast-glob": "^3.2.12",
     "handlebars": "^4.7.7",
     "lodash": "^4.17.21",
-    "vituum": "^1.0.0-alpha.22",
-    "minimatch": "^9.0.1"
+    "vituum": "^1.0.0-beta.3"
   },
   "devDependencies": {
     "@types/node": "^20.3.1",
