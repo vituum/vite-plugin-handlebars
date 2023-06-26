@@ -1,6 +1,5 @@
 import { resolve, relative } from 'path'
 import fs from 'fs'
-import process from 'node:process'
 import FastGlob from 'fast-glob'
 import lodash from 'lodash'
 import Handlebars from 'handlebars'
@@ -72,18 +71,20 @@ const renderTemplate = async ({ filename, server, resolvedConfig }, content, opt
             })
         }
 
-        context.template = relative(resolvedConfig.root, normalizePath(context.template)).startsWith(relative(resolvedConfig.root, options.root)) ? resolve(resolvedConfig.root, normalizePath(context.template)) : resolve(options.root, normalizePath(context.template))
+        context.template = normalizePath(relative(resolvedConfig.root, context.template)).startsWith(normalizePath(relative(resolvedConfig.root, options.root)))
+            ? normalizePath(resolve(resolvedConfig.root, context.template))
+            : normalizePath(resolve(options.root, context.template))
 
-        context.template = relative(options.root, normalizePath(context.template))
+        context.template = normalizePath(relative(options.root, context.template))
     } else if (fs.existsSync(`${initialFilename}.json`)) {
         lodash.merge(context, JSON.parse(fs.readFileSync(`${initialFilename}.json`).toString()))
     }
 
-    const partialGlob = !options.partials.directory ? `${options.root}/**/*.hbs` : `${resolve(resolvedConfig.root, options.partials.directory)}/**/*.hbs`
+    const partialGlob = !options.partials.directory ? `${options.root}/**/*.hbs` : `${normalizePath(resolve(resolvedConfig.root, options.partials.directory))}/**/*.hbs`
 
-    FastGlob.sync(partialGlob).map(entry => resolve(resolvedConfig.root, normalizePath(entry))).forEach(path => {
-        const partialDir = options.partials.directory ? relative(resolvedConfig.root, options.partials.directory) : options.root
-        const partialName = relative(partialDir, path)
+    FastGlob.sync(partialGlob).map(entry => normalizePath(resolve(resolvedConfig.root, entry))).forEach(path => {
+        const partialDir = options.partials.directory ? normalizePath(relative(resolvedConfig.root, options.partials.directory)) : options.root
+        const partialName = normalizePath(relative(partialDir, path))
 
         Handlebars.registerPartial(options.partials.extname ? partialName : partialName.replace('.hbs', ''), fs.readFileSync(path).toString())
     })
