@@ -49,3 +49,5 @@ export interface PluginUserConfig {
     handlebars?: HandlebarsOptions
     ignoredPaths?: string[]
 }
+
+export default function plugin(options?: PluginUserConfig) : import('vite').Plugin

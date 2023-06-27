@@ -1,8 +1,9 @@
 {
   "name": "@vituum/vite-plugin-handlebars",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0",
   "type": "module",
   "main": "index.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "tsc": "tsc",
     "eslint": "eslint '**/*.js' --fix"
@@ -11,7 +12,7 @@
     "fast-glob": "^3.2.12",
     "handlebars": "^4.7.7",
     "lodash": "^4.17.21",
-    "vituum": "^1.0.0-beta.3"
+    "vituum": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.3.1",
@@ -29,7 +30,7 @@
     "./types": "./types/*"
   },
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=16.0.0",
     "npm": ">=9.0.0"
   },
   "repository": {
