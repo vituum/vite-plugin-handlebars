@@ -50,4 +50,4 @@ export interface PluginUserConfig {
     ignoredPaths?: string[]
 }
 
-export default function plugin(options?: PluginUserConfig) : import('vite').Plugin
+export default function plugin(options?: PluginUserConfig) : import('vite').Plugin[]
