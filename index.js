@@ -1,5 +1,6 @@
 import { resolve, relative } from 'path'
 import fs from 'fs'
+import { globSync } from 'tinyglobby'
 import Handlebars from 'handlebars'
 import {
   getPackageInfo,
@@ -79,7 +80,7 @@ const renderTemplate = async ({ filename, resolvedConfig }, content, options) =>
 
   const partialGlob = !options.partials.directory ? `${normalizePath(options.root)}/**/*.hbs` : `${normalizePath(resolve(resolvedConfig.root, options.partials.directory))}/**/*.hbs`
 
-  fs.globSync(partialGlob).map(entry => resolve(resolvedConfig.root, entry)).forEach((path) => {
+  globSync(partialGlob).map(entry => resolve(resolvedConfig.root, entry)).forEach((path) => {
     const partialDir = options.partials.directory ? relative(resolvedConfig.root, options.partials.directory) : options.root
     const partialName = normalizePath(relative(partialDir, path))
 
