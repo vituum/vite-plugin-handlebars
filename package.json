@@ -4,6 +4,13 @@
   "type": "module",
   "main": "index.js",
   "types": "types/index.d.ts",
+  "description": "Vite plugin for Handlebars, transforms hbs templates into HTML",
+  "keywords": [
+    "handlebars",
+    "vituum",
+    "vite",
+    "vite-plugin"
+  ],
   "scripts": {
     "lint": "npm run eslint && npm run tsc",
     "tsc": "tsc",
